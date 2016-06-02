@@ -11,3 +11,6 @@ libraryDependencies ++= Dependencies.sbtSpiFly
 sbtPlugin := true
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-osgi" % "0.8.0")
+
+scriptedSettings
+scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }

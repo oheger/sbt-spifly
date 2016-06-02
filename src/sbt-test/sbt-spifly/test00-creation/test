@@ -1,0 +1,2 @@
+> publishLocal
+$ exists target/scala-2.11/test00_2.11-0.1_spifly.jar
