@@ -31,7 +31,7 @@ In order to use the plugin in a build project it has to be declared in
 ```
 // Other stuff
 
-addSbtPlugin("com.github.oheger" % "sbt-spifly" % "0.1.0")
+addSbtPlugin("com.github.oheger.sbt" % "sbt-spifly" % "0.1.0")
 ```
 
 Then it can be enabled for the current project. Here is an example how this
@@ -103,3 +103,10 @@ License
 
 This code is open source software licensed under the
 [Apache 2.0 License](http://www.apache.org/licenses/LICENSE-2.0.html).
+
+Release notes
+-------------
+
+### Version 0.1.0
+
+- Initial release
