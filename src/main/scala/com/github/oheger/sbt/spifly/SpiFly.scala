@@ -42,9 +42,9 @@ object SpiFly {
                  artifactPath: File): File = {
     val classPathElements = spiFlyJar() :: fullClasspath.map(_.data.getAbsolutePath).toList
     val classPath = classPathElements.mkString(PathSeparator)
-    val javaOptions = List("-classpath", classPath)
+    val javaOptions = Vector("-classpath", classPath)
     val arguments = List(SpiFlyMainClass.getName, artifactPath.getAbsolutePath)
-    val process = Fork.java.fork(new ForkOptions(runJVMOptions = javaOptions), arguments)
+    val process = Fork.java.fork(ForkOptions().withRunJVMOptions(javaOptions), arguments)
     val exitValue = process.exitValue()
     if (exitValue != 0) {
       sys.error(s"Invocation of SPI Fly failed with exit code $exitValue.")
