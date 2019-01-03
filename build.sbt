@@ -3,7 +3,7 @@ import sbt.Keys.publishMavenStyle
 lazy val root = (project in file(".")).
   settings(
     name := "sbt-spifly",
-    version := "0.2.0-SNAPSHOT",
+    version := "0.2.0",
     organization := "com.github.oheger.sbt",
     homepage := Some(url("https://github.com/oheger/sbt-spifly")),
     scalaVersion := "2.12.8",
@@ -28,6 +28,7 @@ lazy val root = (project in file(".")).
     addSbtPlugin("com.typesafe.sbt" % "sbt-osgi" % "0.9.4"),
     crossSbtVersions := Seq("0.13.17", "1.1.6"),
     publishMavenStyle := true,
+    useGpg := true,
     pomIncludeRepository := { _ => false },
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
