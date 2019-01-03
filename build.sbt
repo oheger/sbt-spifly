@@ -3,7 +3,7 @@ import sbt.Keys.publishMavenStyle
 lazy val root = (project in file(".")).
   settings(
     name := "sbt-spifly",
-    version := "0.2.0",
+    version := "0.3.0-SNAPSHOT",
     organization := "com.github.oheger.sbt",
     homepage := Some(url("https://github.com/oheger/sbt-spifly")),
     scalaVersion := "2.12.8",
