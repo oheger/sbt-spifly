@@ -23,7 +23,10 @@ classifier.
 Using sbt-spifly
 ----------------
 
-sbt-spifly is an sbt *Autoplugin*. It requires sbt 0.13.8 or later.
+sbt-spifly is an sbt *Autoplugin*. Make sure to use the correct version that is
+compatible with the sbt version used by your project:
+* sbt-spifly 0.1.0 supports sbt 0.x starting from 0.13.8.
+* sbt-spifly 0.2.0 supports sbt 1.x.
 
 In order to use the plugin in a build project it has to be declared in
 `<PROJECT_ROOT>/project/plugins.sbt` first:
@@ -31,47 +34,28 @@ In order to use the plugin in a build project it has to be declared in
 ```
 // Other stuff
 
-addSbtPlugin("com.github.oheger.sbt" % "sbt-spifly" % "0.1.0")
+addSbtPlugin("com.github.oheger.sbt" % "sbt-spifly" % "0.2.0")
 ```
 
 Then it can be enabled for the current project. Here is an example how this
 looks like for a `<PROJECT_ROOT>/build.sbt` file:
 
 ```scala
-lazy val myBundleProject = (project in file ("."))  // project reference
-  .enablePlugins(SbtOsgi, SbtSpiFly)  // enables both osgi and spifly plugins
-
-osgiSettings     // import settings for OSGi plugin
-
-spiFlySettings   // import settings for spifly plugin
-
-// configure bundle manifest, e.g. set a SPI Fly header
-OsgiKeys.additionalHeaders :=
-  Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream")
-```
-
-If using a `<PROJECT_ROOT>/project/Build.scala` file, the required configuration
-looks as follows:
-
-```scala
 import com.github.oheger.sbt.spifly.SbtSpiFly
 import com.github.oheger.sbt.spifly.SbtSpiFly.autoImport._
-import com.typesafe.sbt.osgi.{OsgiKeys, SbtOsgi}
-import com.typesafe.sbt.osgi.SbtOsgi._
 import com.typesafe.sbt.osgi.SbtOsgi.autoImport._
+import com.typesafe.sbt.osgi.{OsgiKeys, SbtOsgi}
 
-  lazy val myBundleProject = Project(id = "myBundleProject",
-    base = file("myRootDir"))
-    .enablePlugins(SbtOsgi, SbtSpiFly)  // enables both osgi and spifly plugins
-    .settings(osgiSettings: _*)         // import settings for osgi plugin
-    .settings(spiFlySettings: _*)       // import settings for spifly plugin
-    .settings(
-      name := "myProjectName",          // additional settings for the project
-      ...
-      // configure bundle manifest, e.g. set a SPI Fly header
-      OsgiKeys.additionalHeaders :=
-        Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream")
-    )
+lazy val myBundleProject = (project in file ("."))  // project reference
+  .enablePlugins(SbtOsgi, SbtSpiFly)  // enables both osgi and spifly plugins
+  .settings(osgiSettings: _*)         // import settings for OSGi plugin
+  .settings(spiFlySettings: _*)       // import settings for spifly plugin
+  .settings(
+    // configure bundle manifest, e.g. set a SPI Fly header
+    OsgiKeys.additionalHeaders :=
+      Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream"),
+    ...
+  )
 ```
 
 By importing the settings of the osgi and spifly plugins, it is ensured that
@@ -96,7 +80,7 @@ of the project, so that all referenced classes can be resolved), and that's
 all.
 
 The plugin introduces the `spiFly` task which can also be invoked directly. But
-this task requires that bundle jar has already been created.
+this task requires that the bundle jar has already been created.
 
 License
 -------
@@ -107,6 +91,8 @@ This code is open source software licensed under the
 Release notes
 -------------
 
-### Version 0.1.0
+### Version 0.2.0
+- Support for newer versions of sbt.
 
+### Version 0.1.0
 - Initial release
