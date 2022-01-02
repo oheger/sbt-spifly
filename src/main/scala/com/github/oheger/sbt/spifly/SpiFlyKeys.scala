@@ -16,7 +16,7 @@
 
 package com.github.oheger.sbt.spifly
 
-import sbt.{File, TaskKey}
+import sbt.{File, SettingKey, TaskKey}
 
 /**
   * Defines the keys supported by this plugin.
@@ -36,4 +36,13 @@ object SpiFlyKeys {
     */
   val invokeSpiFly = TaskKey[File]("invokeSpiFly",
     "Invokes Apache Aries SpiFly for the current project's artifact during build.")
+
+  /**
+    * Key for the ''classifier'' property that allows changing the classifier
+    * of the generated jar artifact.
+    */
+  val classifier = SettingKey[Option[String]]("classifier",
+    "Allows defining a classifier for the processed artifact from the default classifier 'spifly'. " +
+      "A value of None means that no classifier is used, and the original artifact is overridden with the " +
+      "version processed by the SpiFly tool.")
 }

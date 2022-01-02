@@ -17,11 +17,15 @@
 package com.github.oheger.sbt.spifly
 
 import sbt._
+import sbt.internal.util.ManagedLogger
 
 /**
   * The task implementation.
   */
 object SpiFly {
+  /** The default classifier for processed artifacts. */
+  final val DefaultClassifier = "spifly"
+
   /** The path separator of the current platform. */
   private val PathSeparator = System.getProperty("path.separator")
 
@@ -32,14 +36,20 @@ object SpiFly {
     * The actual task for invoking Apache Aries SPI Fly. This task forks a
     * process to invoke the main class of the Aries SPI Fly static weaving
     * tool passing in the project's classpath and the classpath of the Aries
-    * jar.
+    * jar. The resulting processed jar is renamed according to the selected
+    * classifier. (If no classifier is provided, the original artifact is
+    * overridden with the processed jar.)
     *
     * @param fullClasspath the full classpath of the current project
     * @param artifactPath  the path to the current jar artifact
+    * @param classifier    an option with the classifier to be used
+    * @param log           the logger
     * @return the path to the processed file
     */
   def spiFlyTask(fullClasspath: Seq[Attributed[File]],
-                 artifactPath: File): File = {
+                 artifactPath: File,
+                 classifier: Option[String],
+                 log: ManagedLogger): File = {
     val classPathElements = spiFlyJar() :: fullClasspath.map(_.data.getAbsolutePath).toList
     val classPath = classPathElements.mkString(PathSeparator)
     val javaOptions = Vector("-classpath", classPath)
@@ -50,7 +60,14 @@ object SpiFly {
       sys.error(s"Invocation of SPI Fly failed with exit code $exitValue.")
     }
 
-    file(artifactPath.getAbsolutePath.replace(".jar", "_spifly.jar"))
+    classifier match {
+      case Some(value) if value == DefaultClassifier =>
+        pathWithClassifier(artifactPath, DefaultClassifier)
+      case Some(value) =>
+        writeResultFile(artifactPath, pathWithClassifier(artifactPath, value), log)
+      case None =>
+        writeResultFile(artifactPath, artifactPath, log)
+    }
   }
 
   /**
@@ -65,4 +82,30 @@ object SpiFly {
     val index = path indexOf '!'
     if (index > 0) path.substring(0, index) else path
   }
+
+  /**
+    * Copies the result of the SpiFly processing tool to the given result path.
+    *
+    * @param artifactPath the path of the original artifact
+    * @param resultPath   the result path
+    * @param log          the logger
+    * @return the ''File'' pointing to the result path
+    */
+  private def writeResultFile(artifactPath: File, resultPath: File, log: ManagedLogger): File = {
+    val processedPath = pathWithClassifier(artifactPath, DefaultClassifier)
+    log.info(s"Copying result of SpiFly processing to '$resultPath'.")
+    IO.copyFile(processedPath, resultPath)
+    resultPath
+  }
+
+  /**
+    * Generates a path based on the original artifact path with a specific
+    * classifier.
+    *
+    * @param artifactPath the path of the original artifact
+    * @param classifier   the classifier
+    * @return the resulting path
+    */
+  private def pathWithClassifier(artifactPath: File, classifier: String): File =
+    file(artifactPath.getAbsolutePath.replace(".jar", s"_$classifier.jar"))
 }

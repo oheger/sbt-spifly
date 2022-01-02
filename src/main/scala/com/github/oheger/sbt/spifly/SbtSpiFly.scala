@@ -34,15 +34,17 @@ object SbtSpiFly extends AutoPlugin {
     def spiFlySettings: Seq[Setting[_]] = Seq(
       addArtifact(Artifact("foo", "spifly"), SpiFlyKeys.invokeSpiFly).settings: _*
     ) ++ Seq(
-      artifact in SpiFlyKeys.spiFly := Artifact(moduleName.value, "spifly")
+      artifact in SpiFlyKeys.spiFly := Artifact(moduleName.value,
+        SpiFlyKeys.classifier.value getOrElse SpiFly.DefaultClassifier)
     )
   }
 
   def defaultSpiFlySettings: Seq[Setting[_]] = {
     import SpiFlyKeys._
     Seq(
+      classifier := Some(SpiFly.DefaultClassifier),
       spiFly := SpiFly.spiFlyTask((fullClasspath in Compile).value,
-        (artifactPath in(Compile, packageBin)).value),
+        (artifactPath in(Compile, packageBin)).value, SpiFlyKeys.classifier.value, streams.value.log),
       invokeSpiFly := Def.sequential(SbtOsgi.autoImport.OsgiKeys.bundle, spiFly).value
     )
   }
