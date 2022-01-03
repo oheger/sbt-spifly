@@ -1,16 +1,14 @@
-lazy val test00 = (project in file (".")).enablePlugins(SbtOsgi, SbtSpiFly)
+import com.github.oheger.sbt.spifly.SbtSpiFly
+import com.github.oheger.sbt.spifly.SbtSpiFly.autoImport._
+import com.typesafe.sbt.osgi.SbtOsgi.autoImport._
+import com.typesafe.sbt.osgi.{OsgiKeys, SbtOsgi}
 
-scalaVersion := "2.11.7"
-
-version := "0.1"
-
-name := "test00"
-
-osgiSettings
-
-spiFlySettings
-
-OsgiKeys.additionalHeaders :=
-  Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream")
-
-
+lazy val test00 = (project in file ("."))
+  .enablePlugins(SbtSpiFly)
+  .settings(osgiSettings: _*)
+  .settings(spiFlySettings: _*)
+  .settings(
+    version := "0.1",
+    OsgiKeys.additionalHeaders :=
+      Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream")
+  )

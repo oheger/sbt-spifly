@@ -40,7 +40,7 @@ lazy val root = (project in file("."))
     ),
     pluginCrossBuild / sbtVersion := {
       scalaBinaryVersion.value match {
-        case "2.12" => "1.1.6"
+        case "2.12" => "1.2.1"
       }
     },
     libraryDependencies ++= Dependencies.sbtSpiFly,
@@ -53,5 +53,9 @@ lazy val root = (project in file("."))
         Some("snapshots" at nexus + "content/repositories/snapshots")
       else
         Some("releases" at nexus + "service/local/staging/deploy/maven2")
-    }
+    },
+    scriptedLaunchOpts := { scriptedLaunchOpts.value ++
+      Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
+    },
+    scriptedBufferLog := false
   )
