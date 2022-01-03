@@ -20,21 +20,23 @@ bundle jar with a correct manifest, and sbt-spifly passes this jar to the
 Aries SPI Fly weaving tool, generating a second artifact with the `spifly`
 classifier.
 
+Versions
+--------
+
+The initial version of the sbt-spifly plugin, 0.1.0, targeted sbt versions 0.x,
+starting from 0.13.8. Later plugin versions require sbt 1.x. So if you still 
+use a 0.x sbt version, you are limited to version 0.1.0.
+
 Using sbt-spifly
 ----------------
 
-sbt-spifly is an sbt *Autoplugin*. Make sure to use the correct version that is
-compatible with the sbt version used by your project:
-* sbt-spifly 0.1.0 supports sbt 0.x starting from 0.13.8.
-* sbt-spifly 0.2.0 supports sbt 1.x.
-
-In order to use the plugin in a build project it has to be declared in
-`<PROJECT_ROOT>/project/plugins.sbt` first:
+sbt-spifly is an sbt *Autoplugin*. In order to use the plugin in a build
+project it has to be declared in `<PROJECT_ROOT>/project/plugins.sbt` first:
 
 ```
 // Other stuff
 
-addSbtPlugin("com.github.oheger.sbt" % "sbt-spifly" % "0.2.0")
+addSbtPlugin("com.github.oheger.sbt" % "sbt-spifly" % "0.3.0")
 ```
 
 Then it can be enabled for the current project. Here is an example how this
@@ -71,13 +73,43 @@ the build produces two artifacts:
 
 The `spifly` artifact can then be deployed in an OSGi framework.
 
-Further Remarks
+Further Options
 ---------------
 
 As the static SPI Fly weaving tool does not define any configuration options,
-nor does the plugin. It just invokes the weaving tool (using the full classpath
-of the project, so that all referenced classes can be resolved), and that's
-all.
+there is not much need for many settings of the plugin either. It just invokes
+the weaving tool (using the full classpath of the project, so that all 
+referenced classes can be resolved), and that's all.
+
+It is, however, possible to configure the classifier, under which the processed
+artifact is published. This can be done via the `classifier` settings key. If
+it is not specified, *spifly* is used as default. The setting is actually an
+`Option`. It can be set to `None`, then no classifier is used at all, and the
+processed artifact overrides the original one.
+
+Below is an example how to set an alternative classifier, *osgi*:
+
+```scala
+lazy val myBundleProject = (project in file (".")) 
+  .enablePlugins(SbtOsgi, SbtSpiFly) 
+  .settings(osgiSettings: _*)        
+  .settings(spiFlySettings: _*)      
+  .settings(
+    SpiFlyKeys.classifier := Some("osgi")
+  )
+```
+
+The following example disables the classifier:
+
+```scala
+lazy val myBundleProject = (project in file (".")) 
+  .enablePlugins(SbtOsgi, SbtSpiFly) 
+  .settings(osgiSettings: _*)        
+  .settings(spiFlySettings: _*)      
+  .settings(
+    SpiFlyKeys.classifier := None
+  )
+```
 
 The plugin introduces the `spiFly` task which can also be invoked directly. But
 this task requires that the bundle jar has already been created.
@@ -90,6 +122,10 @@ This code is open source software licensed under the
 
 Release notes
 -------------
+
+### Version 0.3.0
+- Added the `classifier` key that allows customizing or disabling the 
+  classifier, under which the processed artifact gets published.
 
 ### Version 0.2.0
 - Support for newer versions of sbt.
