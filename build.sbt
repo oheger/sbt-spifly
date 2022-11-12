@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
   .enablePlugins(SbtPlugin)
   .settings(
     name := "sbt-spifly",
-    version := "0.4.0",
+    version := "0.5.0-SNAPSHOT",
     organization := "com.github.oheger.sbt",
     homepage := Some(url("https://github.com/oheger/sbt-spifly")),
     licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html")),
