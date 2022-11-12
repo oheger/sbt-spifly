@@ -40,33 +40,46 @@ object SpiFly {
     * classifier. (If no classifier is provided, the original artifact is
     * overridden with the processed jar.)
     *
+    * If the option to skip SpiFly was set, the file for the passed in artifact
+    * is returned directly. (Then the classifier is ignored.)
+    *
     * @param fullClasspath the full classpath of the current project
     * @param artifactPath  the path to the current jar artifact
     * @param classifier    an option with the classifier to be used
+    * @param skipSpiFly    flag to skip the SpiFly invocation
     * @param log           the logger
     * @return the path to the processed file
     */
   def spiFlyTask(fullClasspath: Seq[Attributed[File]],
                  artifactPath: File,
                  classifier: Option[String],
+                 skipSpiFly: Boolean,
                  log: ManagedLogger): File = {
-    val classPathElements = spiFlyJar() :: fullClasspath.map(_.data.getAbsolutePath).toList
-    val classPath = classPathElements.mkString(PathSeparator)
-    val javaOptions = Vector("-classpath", classPath)
-    val arguments = List(SpiFlyMainClass.getName, artifactPath.getAbsolutePath)
-    val process = Fork.java.fork(ForkOptions().withRunJVMOptions(javaOptions), arguments)
-    val exitValue = process.exitValue()
-    if (exitValue != 0) {
-      sys.error(s"Invocation of SPI Fly failed with exit code $exitValue.")
-    }
+    if (skipSpiFly) {
+      if (classifier.isDefined) {
+        log.warn("Ignoring classifier because skipSpiFly flag is set.")
+      }
+      artifactPath
+    } else {
 
-    classifier match {
-      case Some(value) if value == DefaultClassifier =>
-        pathWithClassifier(artifactPath, DefaultClassifier)
-      case Some(value) =>
-        writeResultFile(artifactPath, pathWithClassifier(artifactPath, value), log)
-      case None =>
-        writeResultFile(artifactPath, artifactPath, log)
+      val classPathElements = spiFlyJar() :: fullClasspath.map(_.data.getAbsolutePath).toList
+      val classPath = classPathElements.mkString(PathSeparator)
+      val javaOptions = Vector("-classpath", classPath)
+      val arguments = List(SpiFlyMainClass.getName, artifactPath.getAbsolutePath)
+      val process = Fork.java.fork(ForkOptions().withRunJVMOptions(javaOptions), arguments)
+      val exitValue = process.exitValue()
+      if (exitValue != 0) {
+        sys.error(s"Invocation of SPI Fly failed with exit code $exitValue.")
+      }
+
+      classifier match {
+        case Some(value) if value == DefaultClassifier =>
+          pathWithClassifier(artifactPath, DefaultClassifier)
+        case Some(value) =>
+          writeResultFile(artifactPath, pathWithClassifier(artifactPath, value), log)
+        case None =>
+          writeResultFile(artifactPath, artifactPath, log)
+      }
     }
   }
 

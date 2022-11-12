@@ -6,11 +6,12 @@ import com.typesafe.sbt.osgi.{OsgiKeys, SbtOsgi}
 lazy val test01 = (project in file ("."))
   .enablePlugins(SbtSpiFly)
   .settings(osgiSettings: _*)
+  .settings(spiFlySettings: _*)
   .settings(
     version := "0.1",
     OsgiKeys.additionalHeaders :=
-      Map("SPI-Consumer" -> "javax.sound.sampled.AudioSystem#getAudioInputStream",
-        "Test-Header" -> "present"),
+      Map("Test-Header" -> "present"),
+    SpiFlyKeys.skipSpiFly := true,
     TaskKey[Unit]("verifyManifest") := {
       import java.io.IOException
       import java.util.zip.ZipFile
@@ -20,8 +21,8 @@ lazy val test01 = (project in file ("."))
       val manifestIn = zipFile.getInputStream(zipFile.getEntry("META-INF/MANIFEST.MF"))
       try {
         val lines = Source.fromInputStream(manifestIn).getLines().toList
-        if(!lines.exists(_.startsWith("X-SpiFly-Processed-")))
-          sys.error("SpiFly-Processed header not found!")
+        if(lines.exists(_.startsWith("X-SpiFly-Processed-")))
+          sys.error("SpiFly processing was invoked despite of skipSpiFly setting!")
         if(!lines.exists(_.startsWith("Test-Header")))
           sys.error("Custom header not found!")
       } catch {
