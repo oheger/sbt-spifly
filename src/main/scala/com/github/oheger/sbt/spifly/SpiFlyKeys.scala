@@ -45,4 +45,7 @@ object SpiFlyKeys {
     "Allows defining a classifier for the processed artifact from the default classifier 'spifly'. " +
       "A value of None means that no classifier is used, and the original artifact is overridden with the " +
       "version processed by the SpiFly tool.")
+
+  val skipSpiFly = SettingKey[Boolean]("skipSpiFly",
+    "If set to true, skips the invocation of SpiFly. Then only the plain OSGi bundle is generated.")
 }

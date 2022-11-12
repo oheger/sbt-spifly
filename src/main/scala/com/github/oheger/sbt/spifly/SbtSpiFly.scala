@@ -43,6 +43,7 @@ object SbtSpiFly extends AutoPlugin {
     import SpiFlyKeys._
     Seq(
       classifier := Some(SpiFly.DefaultClassifier),
+      skipSpiFly := false,
       spiFly := SpiFly.spiFlyTask((fullClasspath in Compile).value,
         (artifactPath in(Compile, packageBin)).value, SpiFlyKeys.classifier.value, streams.value.log),
       invokeSpiFly := Def.sequential(SbtOsgi.autoImport.OsgiKeys.bundle, spiFly).value
